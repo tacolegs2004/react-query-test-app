@@ -2,6 +2,7 @@ import {
   QueryClient,
   QueryClientProvider,
   useMutation,
+  useMutationState,
   useQuery,
 } from "@tanstack/react-query";
 import "./App.css";
@@ -62,8 +63,13 @@ const Todo = () => {
     queryFn: () => posts,
   });
 
+  const mutations = useMutationState<TPost>({
+    filters: { status: "pending" },
+    select: (mutation) => mutation.state.variables as TPost,
+  });
+
   return (
-    <ul>
+    <div>
       <button
         onClick={() =>
           mutate({
@@ -75,19 +81,31 @@ const Todo = () => {
       >
         Mutate
       </button>
-      {data?.map((post) => (
-        <li key={post.id}>{post.header}</li>
-      ))}
-      {isPending && (
-        <li
-          style={{
-            opacity: 0.5,
-          }}
-        >
-          {variables.header}
-        </li>
-      )}
-    </ul>
+      <ul>
+        {data?.map((post) => (
+          <li key={post.id}>{post.header}</li>
+        ))}
+        {isPending && (
+          <li
+            style={{
+              opacity: 0.5,
+            }}
+          >
+            {variables.header}
+          </li>
+        )}
+      </ul>
+      <div className=" mt-4">
+        <span className="bg-gray-900 p-2 mt-2 rounded-md">
+          current pending mutations
+        </span>
+        {mutations.map((mutation) => (
+          <h1 key={mutation.id} className="text-lg mt-2">
+            {mutation.header}
+          </h1>
+        ))}
+      </div>
+    </div>
   );
 };
 
